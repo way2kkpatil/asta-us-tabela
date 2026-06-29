@@ -54,7 +54,7 @@ export function createSpSectorsTab(mount: HTMLElement): SpSectorsTab {
             <input id="sector-weight" type="text" inputmode="decimal" autocomplete="off" />
           </div>
           <div class="field">
-            <label for="sector-count">Count filter (top cumulative %)</label>
+            <label for="sector-count">Count filter (% of stocks)</label>
             <input id="sector-count" type="text" inputmode="decimal" autocomplete="off" />
           </div>
         </div>

@@ -26,8 +26,39 @@ describe("filter math", () => {
     const fromWeight = syncFromWeight(qqqHoldings, 5);
     const fromCount = syncFromCount(qqqHoldings, fromWeight.countPercent);
 
+    assert.equal(fromWeight.countPercent, 100);
     assert.equal(fromCount.weightMin, 5);
     assert.equal(weightToCountPercent(qqqHoldings, 5), 100);
+  });
+
+  it("maps count percent to top stock count and cutoff weight", () => {
+    const holdings = Array.from({ length: 100 }, (_, index) => ({
+      symbol: `S${index}`,
+      name: `Stock ${index}`,
+      weight: 100 - index,
+    }));
+
+    const filter = syncFromCount(holdings, 85);
+
+    assert.equal(filter.countPercent, 85);
+    assert.equal(filter.weightMin, 16);
+    assert.equal(
+      applySingleFilter(holdings, filter).length,
+      85,
+    );
+  });
+
+  it("derives count percent from minimum weight cutoff", () => {
+    const holdings = Array.from({ length: 100 }, (_, index) => ({
+      symbol: `S${index}`,
+      name: `Stock ${index}`,
+      weight: 100 - index,
+    }));
+
+    const filter = syncFromWeight(holdings, 16);
+
+    assert.equal(filter.countPercent, 85);
+    assert.equal(filter.weightMin, 16);
   });
 
   it("uses configured default weight filters", () => {
@@ -133,6 +164,10 @@ describe("filter math", () => {
 
     const filter = defaultSectorFilter(holdings);
     assert.equal(filter.countPercent, 75);
-    assert.equal(filter.weightMin, syncFromCount(holdings, 75).weightMin);
+    assert.equal(filter.weightMin, 5);
+    assert.deepEqual(
+      applySingleFilter(holdings, filter).map((row) => row.symbol),
+      ["CAT", "GE"],
+    );
   });
 });

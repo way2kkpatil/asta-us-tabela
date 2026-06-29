@@ -14,7 +14,7 @@ Holdings data is stored in the browser (IndexedDB). Filters and symbol-combine s
 
 ### S&P Sectors
 - Eleven sector ETFs: **XLI**, **XLV**, **XLF**, **XLRE**, **XLE**, **XLU**, **XLK**, **XLB**, **XLP**, **XLY**, **XLC**
-- Per-sector weight/count filters (default: 75% cumulative count)
+- Per-sector weight/count filters (default: top 75% of stocks by count)
 - Independent filter state per sector, persisted across sessions
 
 ### Tabela

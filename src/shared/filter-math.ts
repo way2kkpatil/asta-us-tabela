@@ -5,48 +5,58 @@ export function sortHoldingsByWeight(holdings: HoldingRow[]): HoldingRow[] {
   return [...holdings].sort((a, b) => b.weight - a.weight);
 }
 
+function eligibleHoldings(holdings: HoldingRow[]): HoldingRow[] {
+  return sortHoldingsByWeight(holdings).filter((row) => row.weight > 0);
+}
+
+export function countPercentToStockCount(
+  holdings: HoldingRow[],
+  countPercent: number,
+): number {
+  const eligible = eligibleHoldings(holdings);
+  if (eligible.length === 0 || countPercent <= 0) {
+    return 0;
+  }
+
+  if (countPercent >= 100) {
+    return eligible.length;
+  }
+
+  return Math.round((countPercent / 100) * eligible.length);
+}
+
 export function weightToCountPercent(
   holdings: HoldingRow[],
   weightMin: number,
 ): number {
-  const total = holdings.reduce((sum, row) => sum + row.weight, 0);
-  if (total <= 0) {
+  const eligible = eligibleHoldings(holdings);
+  if (eligible.length === 0) {
     return 0;
   }
 
-  const covered = holdings
-    .filter((row) => row.weight >= weightMin)
-    .reduce((sum, row) => sum + row.weight, 0);
-
-  return (covered / total) * 100;
+  const included = eligible.filter((row) => row.weight >= weightMin).length;
+  return (included / eligible.length) * 100;
 }
 
 export function countPercentToWeight(
   holdings: HoldingRow[],
   countPercent: number,
 ): number {
-  const sorted = sortHoldingsByWeight(holdings);
-  const total = sorted.reduce((sum, row) => sum + row.weight, 0);
-
-  if (total <= 0 || countPercent <= 0) {
+  const eligible = eligibleHoldings(holdings);
+  if (eligible.length === 0 || countPercent <= 0) {
     return Number.POSITIVE_INFINITY;
   }
 
   if (countPercent >= 100) {
-    return sorted.at(-1)?.weight ?? 0;
+    return eligible.at(-1)?.weight ?? 0;
   }
 
-  const target = total * (countPercent / 100);
-  let cumulative = 0;
-
-  for (const row of sorted) {
-    cumulative += row.weight;
-    if (cumulative >= target) {
-      return row.weight;
-    }
+  const stockCount = countPercentToStockCount(holdings, countPercent);
+  if (stockCount <= 0) {
+    return Number.POSITIVE_INFINITY;
   }
 
-  return sorted.at(-1)?.weight ?? 0;
+  return eligible[stockCount - 1]!.weight;
 }
 
 export function syncFromWeight(

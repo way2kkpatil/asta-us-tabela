@@ -312,7 +312,7 @@ function renderFilters(): void {
         <input id="weight-${index}" type="text" inputmode="decimal" autocomplete="off" />
       </div>
       <div class="field">
-        <label for="count-${index}">Count filter (top cumulative %)</label>
+        <label for="count-${index}">Count filter (% of stocks)</label>
         <input id="count-${index}" type="text" inputmode="decimal" autocomplete="off" />
       </div>
       <p class="filter-meta" id="meta-${index}"></p>
