@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+public/app.js
+
+# Generated seed data (copied from csv/ during build)
+public/seed/
+
+# Downloaded holdings data
+csv/
+raw/
+
+# OS and tooling
+.DS_Store
+__pycache__/
+*.log
+.env

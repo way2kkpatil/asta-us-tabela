@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>US Tabela</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header panel">
+        <div class="app-header-copy">
+          <h1>US Tabela</h1>
+          <p>Index impact analysis across major US benchmarks.</p>
+        </div>
+        <div class="app-header-actions">
+          <button
+            type="button"
+            id="open-data-sources"
+            class="icon-button"
+            aria-label="Data sources"
+            title="Data sources"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4 5.75A2.75 2.75 0 0 1 6.75 3h10.5A2.75 2.75 0 0 1 20 5.75v12.5A2.75 2.75 0 0 1 17.25 21H6.75A2.75 2.75 0 0 1 4 18.25V5.75Zm2.75-.75a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h10.5a.75.75 0 0 0 .75-.75V5.75a.75.75 0 0 0-.75-.75H6.75ZM8 8.25A1.25 1.25 0 0 1 9.25 7h8.5a.75.75 0 0 1 0 1.5h-8.5A.75.75 0 0 1 8 8.25Zm0 4A1.25 1.25 0 0 1 9.25 11h8.5a.75.75 0 0 1 0 1.5h-8.5A.75.75 0 0 1 8 12.25Zm0 4a1.25 1.25 0 0 1 1.25-1.25h5.5a.75.75 0 0 1 0 1.5h-5.5A.75.75 0 0 1 8 16.25Z"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            id="open-settings"
+            class="icon-button settings-button"
+            aria-label="Symbol combine settings"
+            title="Symbol combine settings"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 8.25a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5Zm8.94 4.88a7.97 7.97 0 0 0 .06-.88c0-.3-.02-.59-.06-.88l1.92-1.5a.75.75 0 0 0 .18-.96l-1.82-3.15a.75.75 0 0 0-.9-.33l-2.26.91a7.35 7.35 0 0 0-1.52-.88l-.34-2.41A.75.75 0 0 0 14.2 2h-3.4a.75.75 0 0 0-.74.65l-.34 2.41c-.54.22-1.05.5-1.52.88l-2.26-.91a.75.75 0 0 0-.9.33L2.32 8.51a.75.75 0 0 0 .18.96l1.92 1.5c-.04.29-.06.58-.06.88s.02.59.06.88l-1.92 1.5a.75.75 0 0 0-.18.96l1.82 3.15a.75.75 0 0 0 .9.33l2.26-.91c.47.38.98.66 1.52.88l.34 2.41c.07.38.37.65.74.65h3.4c.37 0 .67-.27.74-.65l.34-2.41c.54-.22 1.05-.5 1.52-.88l2.26.91a.75.75 0 0 0 .9-.33l1.82-3.15a.75.75 0 0 0-.18-.96l-1.92-1.5Z"
+              />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="panel workspace-panel">
+        <div class="tab-bar" role="tablist" aria-label="Workspace views">
+          <button
+            type="button"
+            class="tab-button is-active"
+            role="tab"
+            id="tab-button-index-heavyweights"
+            aria-selected="true"
+            aria-controls="tab-panel-index-heavyweights"
+            data-tab="index-heavyweights"
+          >
+            Index Heavyweights
+          </button>
+          <button
+            type="button"
+            class="tab-button"
+            role="tab"
+            id="tab-button-sp-sectors"
+            aria-selected="false"
+            aria-controls="tab-panel-sp-sectors"
+            data-tab="sp-sectors"
+          >
+            S&amp;P Sectors
+          </button>
+          <button
+            type="button"
+            class="tab-button"
+            role="tab"
+            id="tab-button-tabela"
+            aria-selected="false"
+            aria-controls="tab-panel-tabela"
+            data-tab="tabela"
+          >
+            Tabela
+          </button>
+        </div>
+
+        <div
+          id="tab-panel-index-heavyweights"
+          class="tab-panel is-active"
+          role="tabpanel"
+          aria-labelledby="tab-button-index-heavyweights"
+        >
+          <section class="sub-panel filters-panel">
+            <div class="panel-header">
+              <h2>Index Filters</h2>
+              <p>Each index is evaluated independently; a row is shown when any index matches (OR).</p>
+            </div>
+            <div class="filter-grid" id="filter-grid"></div>
+            <div class="filter-actions">
+              <button type="button" id="reset-filters">Reset filters</button>
+            </div>
+          </section>
+
+          <div id="index-heavyweights-stocks"></div>
+        </div>
+
+        <div
+          id="tab-panel-sp-sectors"
+          class="tab-panel"
+          role="tabpanel"
+          aria-labelledby="tab-button-sp-sectors"
+          hidden
+        >
+          <div id="sp-sectors-root"></div>
+        </div>
+
+        <div
+          id="tab-panel-tabela"
+          class="tab-panel"
+          role="tabpanel"
+          aria-labelledby="tab-button-tabela"
+          hidden
+        >
+          <div id="tabela-root"></div>
+        </div>
+      </section>
+    </div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
