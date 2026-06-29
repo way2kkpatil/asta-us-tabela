@@ -64,6 +64,17 @@ const indexStocksMount = document.querySelector<HTMLElement>(
 )!;
 const spSectorsMount = document.querySelector<HTMLElement>("#sp-sectors-root")!;
 const tabelaMount = document.querySelector<HTMLElement>("#tabela-root")!;
+const loadingOverlay = document.querySelector<HTMLElement>("#app-loading")!;
+const loadingDetail = document.querySelector<HTMLElement>("#app-loading-detail")!;
+
+function showLoading(message: string): void {
+  loadingDetail.textContent = message;
+  loadingOverlay.hidden = false;
+}
+
+function hideLoading(): void {
+  loadingOverlay.hidden = true;
+}
 
 const indexStocksPanel = createStocksPanel<IndexStockRow>({
   mount: indexStocksMount,
@@ -406,10 +417,15 @@ function renderFilters(): void {
 
 async function init(): Promise<void> {
   initTabs();
+  showLoading("Preparing data store...");
 
-  await initDataStore();
-  state.combineRules = loadCombineRules();
-  applyAppData(await loadAppData());
+  try {
+    await initDataStore((message) => showLoading(message));
+    state.combineRules = loadCombineRules();
+    applyAppData(await loadAppData());
+  } finally {
+    hideLoading();
+  }
 
   dataSourcesButton.addEventListener("click", () => {
     void dataSourcesDialog.open();

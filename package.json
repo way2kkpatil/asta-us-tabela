@@ -6,9 +6,8 @@
   "scripts": {
     "download": "tsx src/download-and-transform.ts",
     "build:client": "esbuild src/client/app.ts --bundle --format=esm --outfile=public/app.js --platform=browser",
-    "build:seed": "mkdir -p public/seed && cp csv/*.csv public/seed/",
     "build:server": "tsc -p tsconfig.server.json",
-    "build": "npm run build:seed && npm run build:client && npm run build:server",
+    "build": "npm run build:client && npm run build:server",
     "start": "node dist/server/index.js",
     "dev": "npm run build:client && tsx watch src/server/index.ts",
     "test": "tsx --test test/**/*.test.ts"

@@ -5,10 +5,7 @@ node_modules/
 dist/
 public/app.js
 
-# Generated seed data (copied from csv/ during build)
-public/seed/
-
-# Downloaded holdings data
+# Downloaded holdings data (CLI dev tool only)
 csv/
 raw/
 

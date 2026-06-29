@@ -835,6 +835,37 @@ tbody tr:hover {
   color: var(--muted);
 }
 
+.app-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  background: rgba(11, 16, 22, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.app-loading-card {
+  min-width: min(420px, calc(100vw - 48px));
+  padding: 28px 32px;
+  border-radius: 18px;
+  border: 1px solid var(--panel-border);
+  background: rgba(23, 29, 37, 0.96);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.app-loading-title {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.app-loading-detail {
+  margin: 0;
+  color: var(--muted);
+}
+
 @media (max-width: 980px) {
   .filter-grid,
   .combine-rule-row,

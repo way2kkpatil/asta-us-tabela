@@ -43,7 +43,7 @@ Nothing is written to server disk at runtime.
 | `data` | IndexedDB database `data` | Object stores: `sources`, `holdings` |
 | `config` | `localStorage` keys `config:*` | Combine rules, index filters, sector filters |
 
-On first visit, holdings are seeded from bundled `/seed/*.csv` files (copied from `csv/` at build time). Use **Data Sources → Refresh** to pull live data.
+On first visit, the browser downloads all holdings from SSGA and Invesco into IndexedDB. Later visits reuse cached data until you refresh from **Data Sources**.
 
 ## Prerequisites
 
@@ -54,23 +54,16 @@ On first visit, holdings are seeded from bundled `/seed/*.csv` files (copied fro
 
 ```bash
 npm install
-```
-
-### Optional: seed CSV files for build
-
-The `build:seed` step copies `csv/*.csv` into `public/seed/`. To populate `csv/` from provider APIs (CLI, writes to local disk for dev only):
-
-```bash
-npm run download
 npm run build
+npm start
 ```
 
-If `csv/` is empty, the app still runs but starts with no holdings until you refresh data sources in the UI (requires network + CORS proxy).
+Open http://localhost:4222. The first load downloads all ETF holdings in the browser (network required).
 
 ## Development
 
 ```bash
-# Build client bundle, seed files, and server
+# Build client bundle and server
 npm run build
 
 # Start server at http://localhost:4222
@@ -89,6 +82,12 @@ Run tests:
 npm test
 ```
 
+Optional CLI download to local `csv/` for offline inspection (not used by the web app):
+
+```bash
+npm run download
+```
+
 ## Project structure
 
 ```
@@ -104,11 +103,10 @@ src/
   server/
     index.ts        # Static file server + /api/proxy for CORS
   shared/           # Types, filter math, holdings parsing, config store
-  download-and-transform.ts  # CLI batch download (dev seeding)
+  download-and-transform.ts  # CLI batch download (optional dev tool)
 public/
   index.html
   styles.css
-  seed/             # Generated at build — initial holdings bootstrap
 test/               # Node test runner (filter math, combine symbols)
 ```
 
@@ -116,9 +114,8 @@ test/               # Node test runner (filter math, combine symbols)
 
 | Script | Description |
 |--------|-------------|
-| `npm run build` | Seed `public/seed/`, bundle client, compile server |
+| `npm run build` | Bundle client and compile server |
 | `npm run build:client` | esbuild → `public/app.js` |
-| `npm run build:seed` | Copy `csv/*.csv` → `public/seed/` |
 | `npm run build:server` | TypeScript compile → `dist/server/` |
 | `npm start` | Run production server |
 | `npm run dev` | Build client + watch server with tsx |
@@ -131,11 +128,11 @@ test/               # Node test runner (filter math, combine symbols)
 Browser
 ├── IndexedDB (`data`)       holdings + source metadata
 ├── localStorage (config:*)  filters + combine rules
-├── data-pipeline.ts         fetch SSGA XLSX / Invesco JSON
+├── data-pipeline.ts         fetch SSGA XLSX / Invesco JSON on first load
 └── UI tabs                  Index Heavyweights | S&P Sectors | Tabela
 
 Server (Express)
-├── static public/           HTML, CSS, app.js, seed CSVs
+├── static public/           HTML, CSS, app.js
 └── GET /api/proxy           CORS proxy for allowed provider hosts only
 ```
 

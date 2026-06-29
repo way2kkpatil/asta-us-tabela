@@ -1,5 +1,5 @@
 import { defaultFilters } from "../shared/filter-math.js";
-import { parseCsvContent, mergeStocks } from "../shared/holdings.js";
+import { mergeStocks } from "../shared/holdings.js";
 import { DATA_SOURCES } from "../shared/data-sources.js";
 import type {
   FilterState,
@@ -13,9 +13,8 @@ import {
   getHoldings,
   hasAnyHoldings,
   initDatabase,
-  replaceHoldings,
 } from "./db.js";
-import { listSourceStatuses } from "./data-pipeline.js";
+import { listSourceStatuses, refreshSource } from "./data-pipeline.js";
 
 export interface AppData {
   indices: IndexId[];
@@ -26,26 +25,23 @@ export interface AppData {
   defaultFilters: FilterState;
 }
 
-async function seedFromStaticFiles(): Promise<void> {
-  for (const source of DATA_SOURCES) {
-    const response = await fetch(`/seed/${source.id}.csv`);
-    if (!response.ok) {
-      continue;
-    }
+export type InitDataStoreProgress = (message: string) => void;
 
-    const content = await response.text();
-    const holdings = parseCsvContent(content);
-    if (holdings.length > 0) {
-      await replaceHoldings(source.id, holdings);
-    }
-  }
-}
-
-export async function initDataStore(): Promise<void> {
+export async function initDataStore(
+  onProgress?: InitDataStoreProgress,
+): Promise<boolean> {
   await initDatabase();
-  if (!(await hasAnyHoldings())) {
-    await seedFromStaticFiles();
+  if (await hasAnyHoldings()) {
+    return false;
   }
+
+  onProgress?.("Downloading holdings from data sources...");
+  for (const source of DATA_SOURCES) {
+    onProgress?.(`Downloading ${source.id} (${source.provider})...`);
+    await refreshSource(source.id);
+  }
+
+  return true;
 }
 
 export async function loadAppData(): Promise<AppData> {
