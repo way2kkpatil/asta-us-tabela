@@ -2,7 +2,7 @@
 
 A browser-based scanner for US index and sector ETF holdings. Explore heavyweight index constituents, drill into S&P sector ETFs, and view a periodic-table-style **Tabela** layout across all twelve columns.
 
-Holdings data is stored in the browser (IndexedDB). Filters and symbol-combine settings persist in `localStorage`. The server only serves static assets and a CORS proxy for live downloads.
+Holdings data is stored in the browser (IndexedDB). Filters and symbol-combine settings persist in `localStorage`. The server serves static assets and a holdings API that fetches provider data by source id only.
 
 ## Features
 
@@ -101,7 +101,8 @@ src/
     sp-sectors-tab.ts
     tabela-tab.ts
   server/
-    index.ts        # Static file server + /api/proxy for CORS
+    index.ts        # Static file server + /api/holdings/:sourceId
+    holdings-fetch.ts
   shared/           # Types, filter math, holdings parsing, config store
   download-and-transform.ts  # CLI batch download (optional dev tool)
 public/
@@ -133,7 +134,8 @@ Browser
 
 Server (Express)
 ├── static public/           HTML, CSS, app.js
-└── GET /api/proxy           CORS proxy for allowed provider hosts only
+├── GET /api/sources         Known ETF/index source ids
+└── GET /api/holdings/:id    Fetch holdings for allowlisted source id
 ```
 
 ## License

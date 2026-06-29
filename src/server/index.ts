@@ -1,6 +1,8 @@
 import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { DATA_SOURCES, getDataSource } from "../shared/data-sources.js";
+import { fetchHoldingsForSource } from "./holdings-fetch.js";
 
 const workspace = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -8,57 +10,41 @@ const workspace = path.resolve(
 );
 const publicDir = path.join(workspace, "public");
 
-const USER_AGENT =
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36";
-
-const ALLOWED_HOSTS = new Set([
-  "www.ssga.com",
-  "dng-api.invesco.com",
-]);
-
 const app = express();
 const port = Number(process.env.PORT ?? 4222);
 
-app.get("/api/proxy", async (req, res) => {
-  const url = req.query.url;
-  if (typeof url !== "string") {
-    res.status(400).json({ error: "Missing url query parameter" });
+app.get("/api/sources", (_req, res) => {
+  res.json(
+    DATA_SOURCES.map((source) => ({
+      id: source.id,
+      name: source.name,
+      provider: source.provider,
+    })),
+  );
+});
+
+app.get("/api/holdings/:sourceId", async (req, res) => {
+  const sourceId = req.params.sourceId;
+  if (!sourceId) {
+    res.status(400).json({ error: "Missing source id" });
     return;
   }
 
-  let parsed: URL;
   try {
-    parsed = new URL(url);
+    getDataSource(sourceId);
   } catch {
-    res.status(400).json({ error: "Invalid url" });
-    return;
-  }
-
-  if (!ALLOWED_HOSTS.has(parsed.hostname)) {
-    res.status(403).json({ error: "Host not allowed" });
+    res.status(404).json({ error: `Unknown source: ${sourceId}` });
     return;
   }
 
   try {
-    const headers: Record<string, string> = {
-      "User-Agent": USER_AGENT,
-    };
-
-    if (parsed.hostname.includes("invesco")) {
-      headers.Referer = "https://www.invesco.com/qqq-etf/en/about.html";
-      headers.Origin = "https://www.invesco.com";
-    }
-
-    const response = await fetch(url, { headers });
-    const buffer = Buffer.from(await response.arrayBuffer());
-    const contentType = response.headers.get("content-type");
-    if (contentType) {
-      res.set("Content-Type", contentType);
-    }
-    res.status(response.status).send(buffer);
+    const holdings = await fetchHoldingsForSource(sourceId);
+    res.json(holdings);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    res.status(502).json({ error: message });
+    res.status(502).json({
+      error: `Failed to fetch holdings for ${sourceId.toUpperCase()}: ${message}`,
+    });
   }
 });
 

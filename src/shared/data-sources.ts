@@ -1,4 +1,4 @@
-import { INVESCO_QQQ_URL, SSGA_BASE, SSGA_TICKERS } from "./urls.js";
+import { SSGA_TICKERS } from "./urls.js";
 
 export interface DataSourceDefinition {
   id: string;
@@ -30,9 +30,3 @@ export function getDataSource(id: string): DataSourceDefinition {
   }
   return source;
 }
-
-export function getSsgaDownloadUrl(id: string): string {
-  return `${SSGA_BASE}/holdings-daily-us-en-${id.toLowerCase()}.xlsx`;
-}
-
-export { INVESCO_QQQ_URL };
