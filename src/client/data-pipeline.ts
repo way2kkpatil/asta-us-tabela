@@ -45,40 +45,29 @@ function toStatus(record: SourceRecord): DataSourceStatus {
 }
 
 async function fetchBinary(url: string): Promise<ArrayBuffer> {
-  const direct = await fetchWithTimeout(url, {
-    headers: { "User-Agent": USER_AGENT },
-  });
+  const response = await fetchWithTimeout(
+    `/api/proxy?url=${encodeURIComponent(url)}`,
+    { headers: { "User-Agent": USER_AGENT } },
+  );
 
-  if (direct.ok) {
-    return direct.arrayBuffer();
+  if (!response.ok) {
+    throw new Error(`Failed to download ${url} (HTTP ${response.status})`);
   }
 
-  const proxy = await fetchWithTimeout(`/api/proxy?url=${encodeURIComponent(url)}`, {
-    headers: { "User-Agent": USER_AGENT },
-  });
-
-  if (!proxy.ok) {
-    throw new Error(`Failed to download ${url} (HTTP ${proxy.status})`);
-  }
-
-  return proxy.arrayBuffer();
+  return response.arrayBuffer();
 }
 
 async function fetchJson<T>(url: string, headers: Record<string, string>): Promise<T> {
-  const direct = await fetchWithTimeout(url, { headers });
-  if (direct.ok) {
-    return (await direct.json()) as T;
-  }
-
-  const proxy = await fetchWithTimeout(
+  const response = await fetchWithTimeout(
     `/api/proxy?url=${encodeURIComponent(url)}`,
     { headers },
   );
-  if (!proxy.ok) {
-    throw new Error(`Failed to download ${url} (HTTP ${proxy.status})`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to download ${url} (HTTP ${response.status})`);
   }
 
-  return (await proxy.json()) as T;
+  return (await response.json()) as T;
 }
 
 function parseSsgaWorkbook(rows: SheetRow[]): CsvRow[] {
