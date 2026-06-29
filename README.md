@@ -56,18 +56,16 @@ On first visit, holdings are seeded from bundled `/seed/*.csv` files (copied fro
 npm install
 ```
 
-### Seed data for build
+### Optional: seed CSV files for build
 
-`build:seed` copies holdings CSVs into `public/seed/` for first-load bootstrap. It uses `csv/` when present (from `npm run download`), otherwise the committed `seed/` files in the repo.
-
-To refresh seed data from provider APIs (optional, writes to local disk only):
+The `build:seed` step copies `csv/*.csv` into `public/seed/`. To populate `csv/` from provider APIs (CLI, writes to local disk for dev only):
 
 ```bash
 npm run download
 npm run build
 ```
 
-If no seed files are available, the build still succeeds and the app starts empty until you refresh data sources in the UI.
+If `csv/` is empty, the app still runs but starts with no holdings until you refresh data sources in the UI (requires network + CORS proxy).
 
 ## Development
 
@@ -107,7 +105,6 @@ src/
     index.ts        # Static file server + /api/proxy for CORS
   shared/           # Types, filter math, holdings parsing, config store
   download-and-transform.ts  # CLI batch download (dev seeding)
-seed/               # Committed bootstrap CSVs (copied to public/seed/ at build)
 public/
   index.html
   styles.css
@@ -121,7 +118,7 @@ test/               # Node test runner (filter math, combine symbols)
 |--------|-------------|
 | `npm run build` | Seed `public/seed/`, bundle client, compile server |
 | `npm run build:client` | esbuild → `public/app.js` |
-| `npm run build:seed` | Copy `csv/` or `seed/*.csv` → `public/seed/` |
+| `npm run build:seed` | Copy `csv/*.csv` → `public/seed/` |
 | `npm run build:server` | TypeScript compile → `dist/server/` |
 | `npm start` | Run production server |
 | `npm run dev` | Build client + watch server with tsx |
