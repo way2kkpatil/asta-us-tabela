@@ -36,9 +36,27 @@ export async function initDataStore(
   }
 
   onProgress?.("Downloading holdings from data sources...");
+  const failures: string[] = [];
+
   for (const source of DATA_SOURCES) {
     onProgress?.(`Downloading ${source.id} (${source.provider})...`);
-    await refreshSource(source.id);
+    try {
+      await refreshSource(source.id);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      failures.push(`${source.id}: ${message}`);
+      onProgress?.(`Failed ${source.id}. Continuing...`);
+    }
+  }
+
+  if (failures.length === DATA_SOURCES.length) {
+    throw new Error(
+      `Failed to download holdings:\n${failures.join("\n")}`,
+    );
+  }
+
+  if (failures.length > 0) {
+    console.warn("Some holdings downloads failed:", failures);
   }
 
   return true;

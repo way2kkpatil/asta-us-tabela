@@ -70,9 +70,11 @@ const loadingDetail = document.querySelector<HTMLElement>("#app-loading-detail")
 function showLoading(message: string): void {
   loadingDetail.textContent = message;
   loadingOverlay.hidden = false;
+  loadingOverlay.classList.add("is-visible");
 }
 
 function hideLoading(): void {
+  loadingOverlay.classList.remove("is-visible");
   loadingOverlay.hidden = true;
 }
 
@@ -445,6 +447,7 @@ async function init(): Promise<void> {
 }
 
 init().catch((error: unknown) => {
+  hideLoading();
   const message = error instanceof Error ? error.message : String(error);
   indexStocksMount.innerHTML = `
     <div class="empty-state">Failed to load data: ${message}</div>

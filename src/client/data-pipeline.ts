@@ -18,7 +18,20 @@ import {
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36";
 
+const FETCH_TIMEOUT_MS = 45_000;
+
 type SheetRow = Array<string | number | boolean | Date | null | undefined>;
+
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+): Promise<Response> {
+  const response = await fetch(input, {
+    ...init,
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
+  return response;
+}
 
 export interface DataSourceStatus extends SourceRecord {
   csvFile: string;
@@ -32,7 +45,7 @@ function toStatus(record: SourceRecord): DataSourceStatus {
 }
 
 async function fetchBinary(url: string): Promise<ArrayBuffer> {
-  const direct = await fetch(url, {
+  const direct = await fetchWithTimeout(url, {
     headers: { "User-Agent": USER_AGENT },
   });
 
@@ -40,7 +53,7 @@ async function fetchBinary(url: string): Promise<ArrayBuffer> {
     return direct.arrayBuffer();
   }
 
-  const proxy = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`, {
+  const proxy = await fetchWithTimeout(`/api/proxy?url=${encodeURIComponent(url)}`, {
     headers: { "User-Agent": USER_AGENT },
   });
 
@@ -52,12 +65,12 @@ async function fetchBinary(url: string): Promise<ArrayBuffer> {
 }
 
 async function fetchJson<T>(url: string, headers: Record<string, string>): Promise<T> {
-  const direct = await fetch(url, { headers });
+  const direct = await fetchWithTimeout(url, { headers });
   if (direct.ok) {
     return (await direct.json()) as T;
   }
 
-  const proxy = await fetch(
+  const proxy = await fetchWithTimeout(
     `/api/proxy?url=${encodeURIComponent(url)}`,
     { headers },
   );

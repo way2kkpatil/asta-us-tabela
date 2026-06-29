@@ -45,12 +45,27 @@ function holdingKey(sourceId: string, symbol: string): string {
 }
 
 async function ensureSourceRecords(db: IDBDatabase): Promise<void> {
-  const transaction = db.transaction("sources", "readwrite");
-  const store = transaction.objectStore("sources");
+  const existing = await new Promise<Array<{ id: string }>>((resolve, reject) => {
+    const transaction = db.transaction("sources", "readonly");
+    const request = transaction.objectStore("sources").getAll();
+    request.onsuccess = () => resolve(request.result as Array<{ id: string }>);
+    request.onerror = () =>
+      reject(request.error ?? new Error("Failed to read source records"));
+    transaction.onerror = () =>
+      reject(transaction.error ?? new Error("Failed to read source records"));
+  });
 
-  for (const source of DATA_SOURCES) {
-    const existing = await requestToPromise(store.get(source.id));
-    if (!existing) {
+  const existingIds = new Set(existing.map((record) => record.id));
+  const missing = DATA_SOURCES.filter((source) => !existingIds.has(source.id));
+  if (missing.length === 0) {
+    return;
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction("sources", "readwrite");
+    const store = transaction.objectStore("sources");
+
+    for (const source of missing) {
       store.put({
         id: source.id,
         name: source.name,
@@ -59,9 +74,11 @@ async function ensureSourceRecords(db: IDBDatabase): Promise<void> {
         rowCount: 0,
       });
     }
-  }
 
-  await transactionDone(transaction);
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () =>
+      reject(transaction.error ?? new Error("Failed to seed source records"));
+  });
 }
 
 export async function initDatabase(): Promise<IDBDatabase> {
